@@ -23,11 +23,8 @@ async fn main() -> anyhow::Result<()> {
 							.value_name("BINARY")
 							.required(true)
 						)
-						.arg(Arg::with_name("parmeters")
+						.arg(Arg::with_name("parameters")
 							.help("Sets the parameters")
-//							.short("p")
-//							.long("parameters")
-//							.value_name("PARAMETERS")
 							.required(false)
 							.multiple(true)
 							.last(true)
@@ -36,9 +33,8 @@ async fn main() -> anyhow::Result<()> {
 
 	if matches.is_present("binary") {
 		let binary = matches.value_of("binary").unwrap();
-//		let params = matches.values_of("parmeters").unwrap().collect::<Vec<_>>();//Vec::new();
-		let params = match matches.values_of("parmeters") {
-			Some(v) => v.collect::<Vec<_>>(),//Vec::new();
+		let params = match matches.values_of("parameters") {
+			Some(v) => v.collect::<Vec<_>>(),
 			_ => Vec::new(),
 		};
 
