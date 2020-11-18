@@ -36,7 +36,12 @@ async fn main() -> anyhow::Result<()> {
 
 	if matches.is_present("binary") {
 		let binary = matches.value_of("binary").unwrap();
-		let params = matches.values_of("parmeters").unwrap().collect::<Vec<_>>();//Vec::new();
+//		let params = matches.values_of("parmeters").unwrap().collect::<Vec<_>>();//Vec::new();
+		let params = match matches.values_of("parmeters") {
+			Some(v) => v.collect::<Vec<_>>(),//Vec::new();
+			_ => Vec::new(),
+		};
+
 		let mut cmd = Tea::new( binary, params );
 		if let Some( stdout_filename ) = matches.value_of("stdout-file") {
 			cmd.set_stdout_file( stdout_filename );
