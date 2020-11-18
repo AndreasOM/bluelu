@@ -1,9 +1,13 @@
 use clap::{Arg, App};
 
 use bluelu::tea::Tea;
+use log::{info, trace, warn, debug};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+	env_logger::init();
+	info!("Starting...");
+
 	let matches = App::new("tea")
 						.version("0.1")
 						.author("Andreas N. <bluelu@omni-mad.com>")
@@ -29,7 +33,7 @@ async fn main() -> anyhow::Result<()> {
 							.multiple(true)
 							.last(true)
 						).get_matches();
-	dbg!(&matches);
+//	dbg!(&matches);
 
 	if matches.is_present("binary") {
 		let binary = matches.value_of("binary").unwrap();

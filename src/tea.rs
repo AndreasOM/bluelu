@@ -4,6 +4,8 @@ use std::io::{Read, Write};
 use std::sync::mpsc::channel;
 use std::sync::mpsc::{Receiver, Sender, TryRecvError};
 
+use log::{info, trace, warn, debug};
+
 #[derive(Debug)]
 pub struct Tea {
 	stdout_filename: Option<String>,
@@ -25,15 +27,16 @@ impl Tea {
 	}
 
 	pub async fn run( &self ) -> anyhow::Result<()> {
-		dbg!( &self);
+//		dbg!( &self);
 
 		let mut command = Command::new( &self.binary );
 		for p in &self.parameters {
 			command.arg(p);
 		}
 		command.stdout(Stdio::piped());
-		dbg!(&command);
-		println!("Running:");
+//		dbg!(&command);
+//		println!("Running:");
+		trace!( "Running: {:?}", &command );
 //		let o = command.output().expect("fuu");
 		let mut child = command.spawn().expect("Error spawning child");
 
@@ -42,12 +45,12 @@ impl Tea {
 		let (tx, rx) = channel();
 
 		let stdout = child.stdout.take();
-
 		let thread = tokio::spawn(async move{
 			match stdout {
 				Some( mut stdout ) => {
 				let mut buf = Vec::new();
-				println!("Reading stdout");
+
+				trace!("Reading stdout");
 				loop {
 					let mut byte =[0u8];
 					match stdout.read(&mut byte) {
@@ -58,10 +61,11 @@ impl Tea {
 							if byte[0] == 0x0a {
 								match String::from_utf8( buf.clone() ) {
 									Ok( l ) => {
-										dbg!(&l);
+//										dbg!(&l);
 										tx.send( l );
 									},
 									Err( e ) => {
+										warn!("Received non utf-8 character");
 										tx.send("Non UTF-8".to_string());
 									}
 								}
@@ -81,6 +85,7 @@ impl Tea {
 				},
 				None => {
 					println!("NO STDOUT");
+					warn!("NO STDOUT");
 				},
 			}
 //		} else {
@@ -117,7 +122,7 @@ impl Tea {
 			}
 		}
 
-		println!("Done! {:?}", &child );
+		trace!("Done! {:?}", &child );
 		thread.await?;
 
 		Ok(())
